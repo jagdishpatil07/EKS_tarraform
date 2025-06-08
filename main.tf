@@ -102,13 +102,13 @@ resource "aws_eks_node_group" "jagdish" {
   node_role_arn   = aws_iam_role.jagdish_node_group_role.arn
   subnet_ids      = aws_subnet.jagdish_subnet[*].id
 
-  scaling_config {Add commentMore actions
-    desired_size = 3
-    max_size     = 3
-    min_size     = 3
+  scaling_config {
+    desired_size = 2
+    max_size     = 2
+    min_size     = 2
   }
 
-  instance_types = ["t2.large"]
+  instance_types = ["t2.medium"]
 
   remote_access {
     ec2_ssh_key               = var.ssh_key_name

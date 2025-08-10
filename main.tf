@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-east-1"
+  region = "ap-south-1"
 }
 
 resource "aws_vpc" "jagdish_vpc" {
@@ -11,11 +11,11 @@ resource "aws_vpc" "jagdish_vpc" {
 }
 
 resource "aws_subnet" "jagdish_subnet" {
-  count                    = 2
-  vpc_id                   = aws_vpc.jagdish_vpc.id
-  cidr_block               = cidrsubnet(aws_vpc.jagdish_vpc.cidr_block, 8, count.index)
-  availability_zone        = element(["us-east-1a", "us-east-1b"], count.index)
-  map_public_ip_on_launch  = true
+  count                   = 2
+  vpc_id                  = aws_vpc.jagdish_vpc.id
+  cidr_block              = cidrsubnet(aws_vpc.jagdish_vpc.cidr_block, 8, count.index)
+  availability_zone       = element(["ap-south-1a", "ap-south-1b"], count.index)
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "jagdish-subnet-${count.index}"
@@ -86,36 +86,6 @@ resource "aws_security_group" "jagdish_node_sg" {
   }
 }
 
-resource "aws_eks_cluster" "jagdish" {
-  name     = "jagdish-cluster"
-  role_arn = aws_iam_role.jagdish_cluster_role.arn
-
-  vpc_config {
-    subnet_ids         = aws_subnet.jagdish_subnet[*].id
-    security_group_ids = [aws_security_group.jagdish_cluster_sg.id]
-  }
-}
-
-resource "aws_eks_node_group" "jagdish" {
-  cluster_name    = aws_eks_cluster.jagdish.name
-  node_group_name = "jagdish-node-group"
-  node_role_arn   = aws_iam_role.jagdish_node_group_role.arn
-  subnet_ids      = aws_subnet.jagdish_subnet[*].id
-
-  scaling_config {
-    desired_size = 2
-    max_size     = 3
-    min_size     = 2
-  }
-
-  instance_types = ["t2.medium"]
-
-  remote_access {
-    ec2_ssh_key               = var.ssh_key_name
-    source_security_group_ids = [aws_security_group.jagdish_node_sg.id]
-  }
-}
-
 resource "aws_iam_role" "jagdish_cluster_role" {
   name = "jagdish-cluster-role"
 
@@ -172,4 +142,34 @@ resource "aws_iam_role_policy_attachment" "jagdish_node_group_cni_policy" {
 resource "aws_iam_role_policy_attachment" "jagdish_node_group_registry_policy" {
   role       = aws_iam_role.jagdish_node_group_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+resource "aws_eks_cluster" "jagdish" {
+  name     = "jagdish-cluster"
+  role_arn = aws_iam_role.jagdish_cluster_role.arn
+
+  vpc_config {
+    subnet_ids         = aws_subnet.jagdish_subnet[*].id
+    security_group_ids = [aws_security_group.jagdish_cluster_sg.id]
+  }
+}
+
+resource "aws_eks_node_group" "jagdish" {
+  cluster_name    = aws_eks_cluster.jagdish.name
+  node_group_name = "jagdish-node-group"
+  node_role_arn   = aws_iam_role.jagdish_node_group_role.arn
+  subnet_ids      = aws_subnet.jagdish_subnet[*].id
+
+  scaling_config {
+    desired_size = 2
+    max_size     = 3
+    min_size     = 2
+  }
+
+  instance_types = ["t2.medium"]
+
+  remote_access {
+    ec2_ssh_key               = var.ssh_key_name
+    source_security_group_ids = [aws_security_group.jagdish_node_sg.id]
+  }
 }

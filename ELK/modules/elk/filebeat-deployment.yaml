@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jagdish-filebeat
+  namespace: jagdish-elk
+  labels:
+    app: jagdish-filebeat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jagdish-filebeat
+  template:
+    metadata:
+      labels:
+        app: jagdish-filebeat
+    spec:
+      serviceAccountName: jagdish-filebeat
+      containers:
+      - name: filebeat
+        image: docker.elastic.co/beats/filebeat:7.10.0
+        args: ["-e"]
+        securityContext:
+          runAsUser: 0 
+        volumeMounts:
+        - name: config
+          mountPath: /usr/share/filebeat/filebeat.yml
+          subPath: filebeat.yml
+        - name: logs
+          mountPath: /var/log
+      volumes:
+      - name: config
+        configMap:
+          name: jagdish-filebeat-config
+      - name: logs
+        hostPath:
+          path: /var/log
+          type: DirectoryOrCreate

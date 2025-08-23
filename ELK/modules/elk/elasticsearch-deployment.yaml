@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: elasticsearch
-  namespace: elk
+  name: jagdish-elasticsearch
+  namespace: jagdish-elk
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: elasticsearch
+      app: jagdish-elasticsearch
   template:
     metadata:
       labels:
-        app: elasticsearch
+        app: jagdish-elasticsearch
     spec:
       containers:
       - name: elasticsearch

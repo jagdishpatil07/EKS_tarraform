@@ -1,12 +1,11 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
   name: jagdish-filebeat
   namespace: jagdish-elk
   labels:
     app: jagdish-filebeat
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: jagdish-filebeat

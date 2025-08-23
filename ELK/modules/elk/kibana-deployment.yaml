@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jagdish-kibana
+  namespace: jagdish-elk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jagdish-kibana
+  template:
+    metadata:
+      labels:
+        app: jagdish-kibana
+    spec:
+      containers:
+      - name: kibana
+        image: docker.elastic.co/kibana/kibana:7.10.0
+        ports:
+        - containerPort: 5601
+        env:
+        - name: ELASTICSEARCH_HOSTS
+          value: "http://jagdish-elasticsearch:9200"

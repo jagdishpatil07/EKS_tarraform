@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jagdish-logstash
+  namespace: jagdish-elk
+spec:
+  selector:
+    app: jagdish-logstash
+  ports:
+    - protocol: TCP
+      port: 5044
+      targetPort: 5044
